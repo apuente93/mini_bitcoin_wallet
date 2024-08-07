@@ -1,0 +1,72 @@
+.sign-in-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sign-in-logo {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.sign-in-logo img {
+  max-width: 150px;
+}
+
+.sign-in-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.sign-in-text {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #666666;
+}
+
+.sign-in-input {
+  margin-bottom: 1rem;
+}
+
+.sign-in-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 36px;
+  gap: 10px;
+  height: 51px;
+  background: #147C83;
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  color: #F8F8F8;
+  border: none;
+  margin: 0 auto;
+  transition: background-color 0.3s ease;
+}
+
+.sign-in-button:disabled {
+  background: #EFF4F4;
+}
+
+.sign-in-button:hover {
+  background-color: #0f5c5e;
+}
+
+.sign-in-message {
+  text-align: center;
+}
+
+.sign-in-message p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.sign-in-message .sign-in-button {
+  margin-top: 10px;
+}

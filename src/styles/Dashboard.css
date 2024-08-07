@@ -1,0 +1,112 @@
+/* src/components/Dashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono&display=swap');
+
+body, html {
+  font-family: 'DM Mono', monospace;
+}
+
+.dashboard-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  padding: 12px;
+  border: none;
+}
+
+.table thead th {
+  background: #D8EAEA;
+  font-weight: 500;
+  font-size: 18px;
+  color: #001E20;
+}
+
+.table tbody tr:hover {
+  background: #D8EAEA;
+}
+
+.table td:first-child, .table th:first-child {
+  text-align: center;
+}
+
+.table td, .table th {
+  text-align: left;
+}
+
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.favorite-icon {
+  cursor: pointer;
+}
+
+.search-bar .btn-primary {
+  background: #147C83;
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  line-height: 22px;
+  color: #F8F8F8;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar .btn-primary:hover {
+  background-color: #0f5c5e;
+}
+
+.pagination .page-link {
+  color: #147C83; /* Light Teal/01(Main) for text */
+  background-color: #ffffff; /* White for background */
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #147C83; /* Light Teal/01(Main) for background */
+  border-color: #147C83; /* Light Teal/01(Main) for border */
+  color: #ffffff; /* White for text */
+}
+
+.pagination .page-link:hover {
+  background-color: #D8EAEA; /* Light teal for hover */
+  color: #147C83; /* Light Teal/01(Main) for text on hover */
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #d8eaea; /* Grey for disabled text */
+  border-color: #d8eaea; /* Grey for disabled border */
+}

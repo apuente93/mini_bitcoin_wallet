@@ -1,26 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route, Navigate, BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './components/AuthProvider';
+import Dashboard from './components/Dashboard';
+import SignIn from './components/SignIn';
+import AppNavbar from './components/Navbar';
+import EmailLinkHandler from './components/EmailLinkHandler';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <AppNavbar />
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/callback" element={<EmailLinkHandler />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

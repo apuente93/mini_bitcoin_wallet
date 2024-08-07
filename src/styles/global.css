@@ -1,0 +1,7 @@
+/* Import the DM Mono font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono&display=swap');
+
+/* Apply the font globally */
+body, html {
+  font-family: 'DM Mono', monospace;
+}
