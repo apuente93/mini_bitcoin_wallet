@@ -60,24 +60,16 @@ const Dashboard = () => {
       const response = await axios.get(url);
       const fetchedTransactions: Transaction[] = response.data;
 
-      const filteredTransactions = fetchedTransactions.filter((tx) => {
-        const isValid = tx.status.block_time !== null && !isNaN(tx.status.block_time);
-        if (!isValid) {
-          console.warn(`Invalid date found in transaction: ${tx.txid}`);
-        }
-        return isValid;
-      });
-
       setTransactions((prevTransactions) => {
-        const newTransactions = filteredTransactions.filter(
+        const newTransactions = fetchedTransactions.filter(
           (tx) => !prevTransactions.some((prevTx) => prevTx.txid === tx.txid)
         );
         return [...prevTransactions, ...newTransactions];
       });
-      setTotalPages(Math.ceil((transactions.length + filteredTransactions.length) / transactionsPerPage));
-      setHasMoreTransactions(filteredTransactions.length === 50);
-      if (filteredTransactions.length > 0) {
-        setLastFetchedTxid(filteredTransactions[filteredTransactions.length - 1].txid);
+      setTotalPages(Math.ceil((transactions.length + fetchedTransactions.length) / transactionsPerPage));
+      setHasMoreTransactions(fetchedTransactions.length === 50);
+      if (fetchedTransactions.length > 0) {
+        setLastFetchedTxid(fetchedTransactions[fetchedTransactions.length - 1].txid);
       }
     } catch (error) {
       setError('Failed to fetch transactions');
