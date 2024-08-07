@@ -1,8 +1,7 @@
-// src/components/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, Button, Spinner, Alert, Form, InputGroup, Container, Row, Col, Pagination } from 'react-bootstrap';
-import { Star, StarFill } from 'react-bootstrap-icons';
+import { Star, StarFill, ArrowUp, ArrowDown } from 'react-bootstrap-icons';
 import '../styles/Dashboard.css';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebaseConfig';
@@ -10,13 +9,21 @@ import { auth } from '../firebaseConfig';
 type Transaction = {
   txid: string;
   status: {
-    block_time: number;
+    block_time: number | null;
     confirmed: boolean;
   };
+  vin: {
+    prevout: {
+      scriptpubkey_address: string;
+    };
+  }[];
   vout: {
     value: number;
+    scriptpubkey_address: string;
   }[];
 };
+
+type SortableKeys = 'status.block_time' | 'amount' | 'status.confirmed';
 
 const Dashboard = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -29,9 +36,12 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
   const [lastFetchedTxid, setLastFetchedTxid] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' }>({
+    key: 'status.block_time',
+    direction: 'ascending',
+  });
 
   const transactionsPerPage = 10;
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,11 +60,24 @@ const Dashboard = () => {
       const response = await axios.get(url);
       const fetchedTransactions: Transaction[] = response.data;
 
-      setTransactions((prevTransactions) => [...prevTransactions, ...fetchedTransactions]);
-      setTotalPages(Math.ceil((transactions.length + fetchedTransactions.length) / transactionsPerPage));
-      setHasMoreTransactions(fetchedTransactions.length === 50); // Check if there are potentially more transactions to fetch
-      if (fetchedTransactions.length > 0) {
-        setLastFetchedTxid(fetchedTransactions[fetchedTransactions.length - 1].txid);
+      const filteredTransactions = fetchedTransactions.filter((tx) => {
+        const isValid = tx.status.block_time !== null && !isNaN(tx.status.block_time);
+        if (!isValid) {
+          console.warn(`Invalid date found in transaction: ${tx.txid}`);
+        }
+        return isValid;
+      });
+
+      setTransactions((prevTransactions) => {
+        const newTransactions = filteredTransactions.filter(
+          (tx) => !prevTransactions.some((prevTx) => prevTx.txid === tx.txid)
+        );
+        return [...prevTransactions, ...newTransactions];
+      });
+      setTotalPages(Math.ceil((transactions.length + filteredTransactions.length) / transactionsPerPage));
+      setHasMoreTransactions(filteredTransactions.length === 50);
+      if (filteredTransactions.length > 0) {
+        setLastFetchedTxid(filteredTransactions[filteredTransactions.length - 1].txid);
       }
     } catch (error) {
       setError('Failed to fetch transactions');
@@ -72,7 +95,7 @@ const Dashboard = () => {
       setHasMoreTransactions(true); // Reset to assume more transactions available until fetched
       setLastFetchedTxid(null); // Reset last fetched transaction ID
     }
-  };  
+  };
 
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
@@ -96,7 +119,10 @@ const Dashboard = () => {
     fetchMoreTransactionsIfNeeded();
   }, [currentPage]);
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = (timestamp: number | null) => {
+    if (!timestamp || isNaN(timestamp)) {
+      return 'Unconfirmed';
+    }
     return new Date(timestamp * 1000).toLocaleString();
   };
 
@@ -108,8 +134,6 @@ const Dashboard = () => {
     setFavorites(updatedFavorites);
     localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
-
-  const displayTransactions = transactions.slice((currentPage - 1) * transactionsPerPage, currentPage * transactionsPerPage);
 
   const renderPaginationItems = () => {
     const items = [];
@@ -147,6 +171,46 @@ const Dashboard = () => {
     return items;
   };
 
+  const calculateTransactionAmount = (tx: Transaction) => {
+    const totalValue = tx.vout.reduce((acc, vout) => acc + vout.value, 0);
+    const isOutgoing = tx.vin.some(vin => vin.prevout.scriptpubkey_address === address);
+    return `${isOutgoing ? '-' : '+'} ${(totalValue / 100000000).toFixed(8)}`;
+  };
+
+  const sortTransactions = (key: SortableKeys) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    let aValue: number | string;
+    let bValue: number | string;
+
+    if (sortConfig.key === 'amount') {
+      aValue = parseFloat(calculateTransactionAmount(a).replace(/[+-]/, ''));
+      bValue = parseFloat(calculateTransactionAmount(b).replace(/[+-]/, ''));
+    } else if (sortConfig.key === 'status.block_time') {
+      aValue = a.status.block_time || 0;
+      bValue = b.status.block_time || 0;
+    } else {
+      aValue = a.status.confirmed ? 1 : 0;
+      bValue = b.status.confirmed ? 1 : 0;
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === 'ascending' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'ascending' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const displayTransactions = sortedTransactions.slice((currentPage - 1) * transactionsPerPage, currentPage * transactionsPerPage);
+
   return (
     <Container className="dashboard-container">
       <Row>
@@ -179,10 +243,17 @@ const Dashboard = () => {
                 <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Favorite</th>
-                      <th>Date</th>
-                      <th>Amount (BTC)</th>
-                      <th>Status</th>
+                      <th></th>
+                      <th>TX Hash</th>
+                      <th onClick={() => sortTransactions('status.block_time')} style={{ cursor: 'pointer' }}>
+                        Date {sortConfig.key === 'status.block_time' && (sortConfig.direction === 'ascending' ? <ArrowUp /> : <ArrowDown />)}
+                      </th>
+                      <th onClick={() => sortTransactions('amount')} style={{ cursor: 'pointer' }}>
+                        Amount (BTC) {sortConfig.key === 'amount' && (sortConfig.direction === 'ascending' ? <ArrowUp /> : <ArrowDown />)}
+                      </th>
+                      <th onClick={() => sortTransactions('status.confirmed')} style={{ cursor: 'pointer' }}>
+                        Status {sortConfig.key === 'status.confirmed' && (sortConfig.direction === 'ascending' ? <ArrowUp /> : <ArrowDown />)}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -191,12 +262,17 @@ const Dashboard = () => {
                         <td onClick={() => toggleFavorite(tx.txid)} className="text-center favorite-icon">
                           {favorites.includes(tx.txid) ? <StarFill color="gold" /> : <Star />}
                         </td>
+                        <td>
+                          <a href={`https://mempool.space/tx/${tx.txid}`} target="_blank" rel="noopener noreferrer">
+                            {`${tx.txid.slice(0, 5)}...${tx.txid.slice(-5)}`}
+                          </a>
+                        </td>
                         <td>{formatDate(tx.status.block_time)}</td>
-                        <td>{(tx.vout.reduce((acc, vout) => acc + vout.value, 0) / 100000000).toFixed(8)}</td>
+                        <td>{calculateTransactionAmount(tx)}</td>
                         <td>{tx.status.confirmed ? 'Confirmed' : 'Unconfirmed'}</td>
                       </tr>
                     ))}
-                  </tbody>
+                </tbody>
                 </Table>
               </div>
               <Pagination className="justify-content-center">
