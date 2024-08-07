@@ -22,7 +22,11 @@ const SignIn: React.FC = () => {
       setResendEnabled(false);
       setTimeout(() => setResendEnabled(true), 30000);
     } catch (error: any) {
-      setError(error.message || String(error));
+      if (error.code === 'auth/invalid-email') {
+        setError('Incorrect email address');
+      } else {
+        setError(error.message || String(error));
+      }
     }
   };
 
