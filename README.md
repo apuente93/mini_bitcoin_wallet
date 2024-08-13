@@ -1,46 +1,102 @@
-# Getting Started with Create React App
+# Mini Bitcoin Wallet
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Mini Bitcoin Wallet is a web application that enables users to view Bitcoin transaction history and manage their favorite transactions. The application leverages React, Firebase for authentication, and Bootstrap for styling. The application is deployed to the cloud using AWS Amplify.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **User Authentication:** Secure login via email link using Firebase authentication.
+- **View Bitcoin Transaction History:** Retrieve and display the transaction history for a given Bitcoin address.
+- **Manage Favorites:** Mark transactions as favorites for easy reference.
+- **Responsive Design:** Ensures usability across different devices.
+- **Cloud Deployment:** The application is deployed to AWS Amplify, providing scalability and ease of access.
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Before you begin, ensure you have the following installed:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js (v18 or later)
+- npm or yarn
+- Firebase project set up (optional, for authentication)
+- AWS Amplify CLI (optional, for deployment)
 
-### `npm test`
+## Getting Started
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. Clone the Repository
 
-### `npm run build`
+```bash
+git clone https://github.com/apuente93/mini_bitcoin_wallet.git
+cd mini_bitcoin_wallet
+```
+### 2. Install Dependencies
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm install
+```
+### 3. Run the Application
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Firebase Setup (NOT REQUIRED / OPTIONAL)
 
-### `npm run eject`
+To enable Firebase authentication, follow these steps:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. **Create a Firebase Project:**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   - Go to [Firebase Console](https://console.firebase.google.com/).
+   - Click "Add project" and follow the prompts to create a new project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. **Register Your App with Firebase:**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+   - In the Firebase Console, click on the project you created.
+   - Click on the "Web" icon to add Firebase to your web app.
+   - Register the app and copy the Firebase configuration object.
 
-## Learn More
+3. **Add Firebase SDK to Your Project:**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   - Create a `firebaseConfig.js` file in the `src` directory of your project.
+   - Add the following content to `firebaseConfig.js`:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   ```javascript
+   // src/firebaseConfig.js
+   import { initializeApp } from 'firebase/app';
+   import { getAuth } from 'firebase/auth';
+
+   const firebaseConfig = {
+     apiKey: "YOUR_API_KEY",
+     authDomain: "YOUR_AUTH_DOMAIN",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_STORAGE_BUCKET",
+     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+     appId: "YOUR_APP_ID"
+   };
+
+   const app = initializeApp(firebaseConfig);
+   export const auth = getAuth(app);
+   ```
+## Deploy to AWS Amplify (NOT REQUIRED / OPTIONAL)
+To deploy your application to AWS Amplify, follow these steps:
+
+### 1. Install AWS Amplify CLI:
+
+```bash
+npm install -g @aws-amplify/cli
+```
+Follow the instructions in the terminal to set up your AWS profile.
+### 2. Configure Amplify:
+
+```bash
+amplify configure
+```
+### 3. Initialize Amplify in Your Project:
+
+```bash
+amplify init
+```
+### 4. Deploy to Amplify:
+```bash
+amplify add hosting
+amplify publish
+```
+Follow the prompts to set up and deploy your hosting environment. You have now set up Firebase for authentication and deployed your application to AWS Amplify.
